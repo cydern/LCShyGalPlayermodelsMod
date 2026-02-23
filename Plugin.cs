@@ -56,7 +56,7 @@ namespace ShyGalModelReplacement
             }
             */
 
-            ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Red", typeof(MRSHYGALRED));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Red", typeof(MRSHYGALRED));
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Blue", typeof(MRSHYGALBLUE));
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Black", typeof(MRSHYGALBLACK));
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Green", typeof(MRSHYGALGREEN));
@@ -65,7 +65,7 @@ namespace ShyGalModelReplacement
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Purple", typeof(MRSHYGALPURPLE));
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Pink", typeof(MRSHYGALPINK));
 			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Orange", typeof(MRSHYGALORANGE));
-
+            // ModelReplacementAPI has forced my hand
             
 			Harmony harmony = new Harmony("com.cydern.shygalplayermodels");
             harmony.PatchAll();
