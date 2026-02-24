@@ -1,7 +1,7 @@
 {
     "name": "ShyGal_Playermodels",
     "version_number": "1.1.0",
-    "website_url": "",
+    "website_url": "https://github.com/cydern/LCShyGalPlayermodelsMod/",
     "description": "Adds Playable ShyGals with Multiple Colors / Personalities!",
     "dependencies": [
         "BepInEx-BepInExPack-5.4.2100",

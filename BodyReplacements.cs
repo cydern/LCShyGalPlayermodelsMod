@@ -90,31 +90,15 @@ namespace ShyGalModelReplacement
 						break;
 				}
 			}
-			else
-			{
-				danceID = 0;
-			}
-
-			int tooManyEmotesDanceID = 0;
-			if (ModelReplacementAPI.tooManyEmotesPresent)
-			{
-				tooManyEmotesDanceID = getTooManyEmotesCurrentEmoteID();
-			}
-			switch (tooManyEmotesDanceID) 
-			{
-				case 0:
-					break;
-				default:
-					danceID = tooManyEmotesDanceID;
-					break;
-			}
+			else { danceID = 0; }
+			if (ModelReplacementAPI.tooManyEmotesPresent) { danceID = getEmoteIDWithTME(danceID); }
 			if (previousDanceID != danceID)
 			{
 				OnEmote(danceID);
 			}
 		}
 
-		private int getTooManyEmotesCurrentEmoteID()
+		private int getEmoteIDWithTME(int emoteID)
 		{
 			if (EmoteControllerPlayer.allPlayerEmoteControllers.TryGetValue(controller, out var tooManyEmotesController))
 			{
@@ -123,7 +107,7 @@ namespace ShyGalModelReplacement
 					return tooManyEmotesController.performingEmote.emoteId * -1 - 1;
 				}
 			}
-			return 0;
+			return emoteID;
 		}
 
 		protected override void OnHitEnemy(bool dead) { return; }
