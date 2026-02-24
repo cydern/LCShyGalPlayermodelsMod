@@ -401,3 +401,11 @@ FodyWeavers.xsd
 *.sln.iml
 
 *.manifest
+*.dll
+*.zip
+Build/*.zip
+Build/README.md
+Build/manifest.json
+Build/ShyGalPlayermodelsMod.dll
+Build/icon.png
+shygalplayermodels.manifest

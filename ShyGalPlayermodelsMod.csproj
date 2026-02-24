@@ -41,6 +41,9 @@
     <Reference Include="ModelReplacementAPI">
       <HintPath>ModelReplacementAPI.dll</HintPath>
     </Reference>
+    <Reference Include="TooManyEmotes">
+      <HintPath>C:\Users\Layton\Documents\LethalCompanyTestEnv\BepInEx\plugins\FlipMods-TooManyEmotes-2.3.13\plugins\TooManyEmotes.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.InputSystem">
       <HintPath>$(LethalCompanyPath)\Lethal Company_Data\Managed\Unity.InputSystem.dll</HintPath>
     </Reference>

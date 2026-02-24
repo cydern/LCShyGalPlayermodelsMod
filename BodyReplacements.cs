@@ -1,50 +1,137 @@
 using ModelReplacement;
 using UnityEngine;
+using TooManyEmotes;
+using GameNetcodeStuff;
 
 namespace ShyGalModelReplacement
 {
 	public class MRSHYGALBASE : BodyReplacementBase
 	{
+		private int danceID = 0;
+		private int previousDanceID = 0;
+
+		protected string model_name;
 		protected FaceExpression defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		protected FaceExpression happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0);
 		protected FaceExpression happyEyesClosedExpression = new FaceExpression(0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 65, 0, 0, 0, 0);
-		// protected FaceExpression unsureHappyExpression = new FaceExpression(0, 0, 0, 0, 0, 50, 0, 0, 5, 0, 75, 0, 0, 0, 0);
 		protected FaceExpression surprisedExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 65, 0, 0, 0, 0, 0, 0, 0);
-		// protected FaceExpression closedEyesExpression = new FaceExpression(0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		// protected FaceExpression sadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0);
-
+		protected FaceExpression closedEyesExpression = new FaceExpression(0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		protected FaceExpression deadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 25, 0, 0, 50, 0);
 
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal";
+			model_name = "Shygal";
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
-		protected override void OnEmoteStart(int emoteId)
+
+		protected virtual void OnEmote(int emoteId)
 		{
-			SkinnedMeshRenderer mask = replacementModel.GetComponentInChildren<SkinnedMeshRenderer>();
-			switch (emoteId)
+			if (Plugin.enableEmoteExpressions.Value)
 			{
-			case 1:
-				happyExpression.setExpression(mask);
-				break;
-			case 2:
-				surprisedExpression.setExpression(mask);
-				break;
-			default:
-				defaultExpression.setExpression(mask);
-				break;
+				SkinnedMeshRenderer mask = replacementModel.GetComponentInChildren<SkinnedMeshRenderer>();
+				switch (emoteId)
+				{
+					case 1:
+					case -52: // company jig
+					case -18: // blow kiss
+					case -129: // hello friend!
+					case -194: // mwuahaha
+					case -302: // travelers
+						happyExpression.setExpression(mask);
+						break;
+					case 2:
+					case -155: // it's you
+						surprisedExpression.setExpression(mask);
+						break;
+					case -3: // afk
+					case -89: // facepalm
+						closedEyesExpression.setExpression(mask);
+						break;
+					case -36: // bunny hop
+					case -46: // cheer
+					case -170: // laugh it out
+					case -133: // hooray!
+					case -219: // primo moves
+						happyEyesClosedExpression.setExpression(mask);
+						break;
+					default:
+						defaultExpression.setExpression(mask);
+						break;
+				}
 			}
 		}
-		protected override void OnEmoteEnd()
-		{
-			defaultExpression.setExpression(replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
-		}
+
 		protected override void OnDeath()
 		{
-			deadExpression.setExpression(replacementDeadBody.GetComponentInChildren<SkinnedMeshRenderer>());
+			if (Plugin.enableDeathExpressions.Value)
+			{
+				deadExpression.setExpression(replacementDeadBody.GetComponentInChildren<SkinnedMeshRenderer>());
+			}
 		}
 
+		public void LateUpdate()
+		{
+			base.LateUpdate();
+			previousDanceID = danceID;
+			
+			int fullPathHash = controller.playerBodyAnimator.GetCurrentAnimatorStateInfo(1).fullPathHash;
+			if (controller.performingEmote)
+			{
+				switch (fullPathHash)
+				{
+					case -462656950:
+						danceID = 1;
+						break;
+					case 2103786480:
+						danceID = 2;
+						break;
+					default:
+						danceID = 3;
+						break;
+				}
+			}
+			else
+			{
+				danceID = 0;
+			}
+
+			int tooManyEmotesDanceID = 0;
+			if (ModelReplacementAPI.tooManyEmotesPresent)
+			{
+				tooManyEmotesDanceID = getTooManyEmotesCurrentEmoteID();
+			}
+			switch (tooManyEmotesDanceID) 
+			{
+				case 0:
+					break;
+				default:
+					danceID = tooManyEmotesDanceID;
+					break;
+			}
+			if (previousDanceID != danceID)
+			{
+				OnEmote(danceID);
+			}
+		}
+
+		private int getTooManyEmotesCurrentEmoteID()
+		{
+			if (EmoteControllerPlayer.allPlayerEmoteControllers.TryGetValue(controller, out var tooManyEmotesController))
+			{
+				if (tooManyEmotesController.IsPerformingCustomEmote())
+				{
+					return tooManyEmotesController.performingEmote.emoteId * -1 - 1;
+				}
+			}
+			return 0;
+		}
+
+		protected override void OnHitEnemy(bool dead) { return; }
+		protected override void OnHitAlly(PlayerControllerB ally, bool dead) { return; }
+		protected override void OnDamageTaken(bool dead) { return; }
+		protected override void OnDamageTakenByAlly(PlayerControllerB ally, bool dead) { return; }
+		protected override void OnEmoteStart(int emoteId) { return; }
+		protected override void OnEmoteEnd() { return; }
 	}
 
 	// RED SHY GAL
@@ -52,7 +139,7 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Red";
+			model_name = "Shygal Red";
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
 
@@ -63,9 +150,9 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Blue";
+			model_name = "Shygal Blue";
 			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0);
-			happyExpression = new FaceExpression(0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 65, 0, 0, 0, 0);
+			happyExpression = happyEyesClosedExpression;
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
 	}
@@ -75,7 +162,7 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Black";
+			model_name = "Shygal Black";
 			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0);
 			happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 100, 0, 0, 0, 0);
 			surprisedExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 60, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -90,7 +177,7 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Green";
+			model_name = "Shygal Green";
 			defaultExpression = new FaceExpression(0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 			happyExpression = new FaceExpression(0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0);
 			surprisedExpression = new FaceExpression(0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -104,7 +191,7 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Yellow";
+			model_name = "Shygal Yellow";
 			deadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 50, 30);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
@@ -115,8 +202,8 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal White";
-			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 0, 0);
+			model_name = "Shygal White";
+			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0);
 			happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 100, 0, 0, 0, 0);
 			deadExpression = new FaceExpression(0, 0, 0, 0, 20, 0, 0, 100, 65, 0, 0, 0, 0, 50, 0);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
@@ -128,7 +215,7 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Purple";
+			model_name = "Shygal Purple";
 			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0);
 			happyExpression = new FaceExpression(0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 70, 0, 0, 0, 0);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
@@ -140,12 +227,21 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Pink";
+			model_name = "Shygal Pink";
 			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0);
 			happyExpression = new FaceExpression(100, 0, 0, 0, 0, 75, 0, 0, 0, 0, 65, 0, 0, 0, 0);
 			surprisedExpression = new FaceExpression(0, 0, 100, 0, 0, 0, 0, 20, 0, 0, 100, 0, 0, 0, 0);
 			deadExpression = new FaceExpression(0, 0, 0, 0, 95, 0, 0, 100, 50, 0, 30, 0, 30, 0, 30);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
+		}
+
+		protected override void OnEmote(int emoteId)
+		{
+			base.OnEmote(emoteId);
+			if (emoteId == -18) // blow kiss
+			{
+				surprisedExpression.setExpression(replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
+			}
 		}
 	}
 
@@ -154,7 +250,8 @@ namespace ShyGalModelReplacement
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
-			string model_name = "Shygal Orange";
+			model_name = "Shygal Orange";
+			happyExpression = happyEyesClosedExpression;
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
 	}
@@ -179,6 +276,5 @@ namespace ShyGalModelReplacement
 			}
 		}
 	}
-
 
 }

@@ -1,4 +1,4 @@
-# ShyGal Playermodels v1.0.2
+# ShyGal Playermodels v1.1.0
 ### The Definitive ShyGal Mod for Lethal Company!
 This mod adds a variety of ShyGal models to your ship's suit rack with the intention of being as optimized and seamless as possible. I started the project after trying on different ShyGal mods that didn't feel functional, or especially "proportionally appropriate", and after satisfying results I've decided to publish the mod. It's certainly not perfect, but hopefully it'll soar for future updates.
 
@@ -14,8 +14,13 @@ Despite being past V1.0.0, this is still in development! Things are likely to ha
 
 ##
 ### Changelog
+    - v1.1.0
+        - Fixed Expressions getting stuck if TooManyEmotes was installed by writing my own detection code (SERIOUSLY, ModelReplacementAPI??)
+        - Greatly optimized code
+        - Redid many of the Expressions
+        - Reapplied missing materials, fixed some minor texture oddities, and improved file sizes
     - v1.0.2
-        - Fixed some minor texture oddities and improved file sizes
+        - Fixed some minor texture oddities, and improved file sizes
         - Added TooManyEmotes support for emotes: Blow Kiss, Bunny Hop, Cheer, Hello Friend, Hooray, It's You, Laugh it Out, Mwuahaha, Travelers
         - Added Config Entry to turn off expressions due to TooManyEmotes causing faces to get stuck
     - v1.0.1
@@ -24,11 +29,9 @@ Despite being past V1.0.0, this is still in development! Things are likely to ha
         - Release
 ######
     Known Issues
-      - Having TooManyEmotes installed can get expressions stuck due to ModelReplacementAPI not returning a 0 when it should.
       - Model's arms aren't accurate which can cause some weird poses on certain movements, like the point emote
-      - Ragdoll on death is incredibly wooden and can get stuck easily, causing some weird visual heckery
+      - Ragdoll on death is incredibly wooden and can get stuck easily, potentially causing bodies to be lost during takeoff
     Todo
       - Try to add host control over config
-      - Make better functionality for TooManyEmotes
       - Add Expressions for taking damage and attacking
       - More ShyGals?
