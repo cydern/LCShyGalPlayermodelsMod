@@ -1,7 +1,8 @@
-using ModelReplacement;
-using UnityEngine;
-using TooManyEmotes;
 using GameNetcodeStuff;
+using ModelReplacement;
+using TooManyEmotes;
+using UnityEngine;
+using ShyGalModelReplacement.Expression;
 
 namespace ShyGalModelReplacement
 {
@@ -14,9 +15,15 @@ namespace ShyGalModelReplacement
 		protected FaceExpression defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		protected FaceExpression happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0);
 		protected FaceExpression happyEyesClosedExpression = new FaceExpression(0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 65, 0, 0, 0, 0);
-		protected FaceExpression surprisedExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 65, 0, 0, 0, 0, 0, 0, 0);
+		protected FaceExpression surprisedExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0);
 		protected FaceExpression closedEyesExpression = new FaceExpression(0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		protected FaceExpression deadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 25, 0, 0, 50, 0);
+		//protected FaceExpression scornExpression = new FaceExpression();
+		//protected FaceExpression angryExpression = new FaceExpression();
+		//protected FaceExpression hurtExpression = new FaceExpression();
+		//protected FaceExpression fearExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0);
+
+		protected Tweener tweenManager;
 
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -28,7 +35,6 @@ namespace ShyGalModelReplacement
 		{
 			if (Plugin.enableEmoteExpressions.Value)
 			{
-				SkinnedMeshRenderer mask = replacementModel.GetComponentInChildren<SkinnedMeshRenderer>();
 				switch (emoteId)
 				{
 					case 1:
@@ -37,25 +43,25 @@ namespace ShyGalModelReplacement
 					case -129: // hello friend!
 					case -194: // mwuahaha
 					case -302: // travelers
-						happyExpression.setExpression(mask);
+						tweenManager.CreateTweenAndRun(happyExpression, 0.1f);
 						break;
 					case 2:
 					case -155: // it's you
-						surprisedExpression.setExpression(mask);
+						tweenManager.CreateTweenAndRun(surprisedExpression, 0.1f);
 						break;
 					case -3: // afk
 					case -89: // facepalm
-						closedEyesExpression.setExpression(mask);
+						tweenManager.CreateTweenAndRun(closedEyesExpression, 0.1f);
 						break;
 					case -36: // bunny hop
 					case -46: // cheer
 					case -170: // laugh it out
 					case -133: // hooray!
 					case -219: // primo moves
-						happyEyesClosedExpression.setExpression(mask);
+						tweenManager.CreateTweenAndRun(happyEyesClosedExpression, 0.1f);
 						break;
 					default:
-						defaultExpression.setExpression(mask);
+						tweenManager.CreateTweenAndRun(defaultExpression, 0.1f);
 						break;
 				}
 			}
@@ -69,7 +75,13 @@ namespace ShyGalModelReplacement
 			}
 		}
 
-		public void LateUpdate()
+		protected override void Awake()
+		{
+			base.Awake();
+			tweenManager = new Tweener(replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
+		}
+
+		public override void LateUpdate()
 		{
 			base.LateUpdate();
 			previousDanceID = danceID;
@@ -96,6 +108,7 @@ namespace ShyGalModelReplacement
 			{
 				OnEmote(danceID);
 			}
+			tweenManager.LateUpdate();
 		}
 
 		private int getEmoteIDWithTME(int emoteID)
@@ -168,7 +181,7 @@ namespace ShyGalModelReplacement
 			deadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 25, 0, 0, 0, 0, 25, 0);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
-	}	 
+	}
 
 	// YELLOW SHY GAL
 	public class MRSHYGALYELLOW : MRSHYGALBASE
@@ -224,7 +237,7 @@ namespace ShyGalModelReplacement
 			base.OnEmote(emoteId);
 			if (emoteId == -18) // blow kiss
 			{
-				surprisedExpression.setExpression(replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
+				tweenManager.CreateTweenAndRun(surprisedExpression, 0.1f);
 			}
 		}
 	}
@@ -239,26 +252,4 @@ namespace ShyGalModelReplacement
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
 	}
-
-	public class FaceExpression
-	{
-		private short[] faceBlendshapes;
-
-		public FaceExpression(short blush, short tribal, short heartEyes, short eyesHalfClosed, short eyesClosed, short eyesClosedHappy, short eyesAngry, short eyesSurprised, short eyesSad, short eyesConfused, short eyesHappy, short eyesSmug, short a, short o, short ch) 
-		{ 
-			faceBlendshapes = new short[] { blush, tribal, heartEyes, eyesHalfClosed, 
-											eyesClosed, eyesClosedHappy, eyesAngry, eyesSurprised, 
-											eyesSad, eyesConfused, eyesHappy, eyesSmug, 
-											a, o, ch };
-		}
-
-		public void setExpression(SkinnedMeshRenderer mask)
-		{
-			for (int i = 0; i < faceBlendshapes.Length; i++)
-			{
-				mask.SetBlendShapeWeight(i, faceBlendshapes[i]);
-			}
-		}
-	}
-
 }

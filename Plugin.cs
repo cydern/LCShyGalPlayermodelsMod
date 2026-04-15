@@ -8,12 +8,12 @@ using System;
 
 namespace ShyGalModelReplacement
 {
-    [BepInPlugin("com.cydern.shygalplayermodels", "Shy Gal Playermodels", "0.1.0")]
+    [BepInPlugin("com.cydern.shygalplayermodels", "ShyGal Playermodels", "1.2.0")]
     [BepInDependency("meow.ModelReplacementAPI", BepInDependency.DependencyFlags.HardDependency)]
-    public class Plugin : BaseUnityPlugin
+	[BepInDependency("x753-More_Suits", BepInDependency.DependencyFlags.SoftDependency)]
+	public class Plugin : BaseUnityPlugin
     {
         public static ConfigFile config;
-
         public static ConfigEntry<bool> enableEmoteExpressions { get; private set; }
 		public static ConfigEntry<bool> enableDeathExpressions { get; private set; }
 
@@ -42,6 +42,7 @@ namespace ShyGalModelReplacement
             harmony.PatchAll();
             Logger.LogInfo($"Plugin {"com.cydern.shygalplayermodels"} is loaded!");
         }
+
     }
     public static class Assets
     {
