@@ -1,8 +1,8 @@
 ## v1.2.0
         - Moved the Changelog to CHANGELOG.MD
-        - Face Expressions now Tween instead of snapping to the desired Expression
-        - Adjusted Arm Rotation Offsets
+        - Face Expressions now Tween instead of snapping to the desired Expression! THIS IS HUUUGE
         - Made all Gals a little shorter
+        - Fixed some minor texture oddities, and improved file sizes
 ## v1.1.0
         - Fixed Expressions getting stuck if TooManyEmotes was installed by writing my own detection code (SERIOUSLY, ModelReplacementAPI??)
         - Greatly optimized code

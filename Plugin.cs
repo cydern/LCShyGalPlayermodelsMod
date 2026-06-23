@@ -5,6 +5,7 @@ using System.Reflection;
 using ModelReplacement;
 using BepInEx.Configuration;
 using System;
+using BepInEx.Logging;
 
 namespace ShyGalModelReplacement
 {
@@ -17,6 +18,8 @@ namespace ShyGalModelReplacement
         public static ConfigEntry<bool> enableEmoteExpressions { get; private set; }
 		public static ConfigEntry<bool> enableDeathExpressions { get; private set; }
 
+        internal static ManualLogSource logger = BepInEx.Logging.Logger.CreateLogSource("ShyGal Playermodels");
+
 		private static void InitConfig()
         {
 			enableEmoteExpressions = config.Bind<bool>("Expressions (Client-Sided)", "Enable Expressions on Emote", true, "When enabled, ShyGals will change expressions when emoting.");
@@ -28,19 +31,17 @@ namespace ShyGalModelReplacement
             InitConfig();
             Assets.PopulateAssets();
 
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Red", typeof(MRSHYGALRED));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Blue", typeof(MRSHYGALBLUE));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Black", typeof(MRSHYGALBLACK));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Green", typeof(MRSHYGALGREEN));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Yellow", typeof(MRSHYGALYELLOW));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal White", typeof(MRSHYGALWHITE));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Purple", typeof(MRSHYGALPURPLE));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Pink", typeof(MRSHYGALPINK));
-			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Orange", typeof(MRSHYGALORANGE));
-            
-			Harmony harmony = new Harmony("com.cydern.shygalplayermodels");
-            harmony.PatchAll();
-            Logger.LogInfo($"Plugin {"com.cydern.shygalplayermodels"} is loaded!");
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Red", typeof(SHYGALRED));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Blue", typeof(SHYGALBLUE));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Black", typeof(SHYGALBLACK));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Green", typeof(SHYGALGREEN));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Yellow", typeof(SHYGALYELLOW));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal White", typeof(SHYGALWHITE));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Purple", typeof(SHYGALPURPLE));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Pink", typeof(SHYGALPINK));
+			ModelReplacementAPI.RegisterSuitModelReplacement("Shygal Orange", typeof(SHYGALORANGE));
+
+			logger.LogInfo($"Plugin {"ShyGal Playermodels"} is loaded!");
         }
 
     }

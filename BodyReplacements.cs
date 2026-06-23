@@ -2,17 +2,16 @@ using GameNetcodeStuff;
 using ModelReplacement;
 using TooManyEmotes;
 using UnityEngine;
-using ShyGalModelReplacement.Expression;
 
 namespace ShyGalModelReplacement
 {
-	public class MRSHYGALBASE : BodyReplacementBase
+	public class SHYGALBASE : BodyReplacementBase
 	{
 		private int danceID = 0;
 		private int previousDanceID = 0;
 
 		protected string model_name;
-		protected FaceExpression defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		protected FaceExpression defaultExpression = FaceExpression.GetZeroedExpression();
 		protected FaceExpression happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0);
 		protected FaceExpression happyEyesClosedExpression = new FaceExpression(0, 0, 0, 0, 0, 75, 0, 0, 0, 0, 65, 0, 0, 0, 0);
 		protected FaceExpression surprisedExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0);
@@ -20,10 +19,11 @@ namespace ShyGalModelReplacement
 		protected FaceExpression deadExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 25, 0, 0, 50, 0);
 		//protected FaceExpression scornExpression = new FaceExpression();
 		//protected FaceExpression angryExpression = new FaceExpression();
-		//protected FaceExpression hurtExpression = new FaceExpression();
-		//protected FaceExpression fearExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0);
+		protected FaceExpression hurtExpression = FaceExpression.GetZeroedExpression();
+		protected FaceExpression fearExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0);
+		protected FaceExpression drunkExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 0, 70, 0, 0, 0, 0, 0);
 
-		protected Tweener tweenManager;
+		protected Expressions Expressions;
 
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -43,25 +43,25 @@ namespace ShyGalModelReplacement
 					case -129: // hello friend!
 					case -194: // mwuahaha
 					case -302: // travelers
-						tweenManager.CreateTweenAndRun(happyExpression, 0.1f);
+						Expressions.SetBaseExpression(happyExpression);
 						break;
 					case 2:
 					case -155: // it's you
-						tweenManager.CreateTweenAndRun(surprisedExpression, 0.1f);
+						Expressions.SetBaseExpression(surprisedExpression);
 						break;
 					case -3: // afk
 					case -89: // facepalm
-						tweenManager.CreateTweenAndRun(closedEyesExpression, 0.1f);
+						Expressions.SetBaseExpression(closedEyesExpression);
 						break;
 					case -36: // bunny hop
 					case -46: // cheer
 					case -170: // laugh it out
 					case -133: // hooray!
 					case -219: // primo moves
-						tweenManager.CreateTweenAndRun(happyEyesClosedExpression, 0.1f);
+						Expressions.SetBaseExpression(happyEyesClosedExpression);
 						break;
 					default:
-						tweenManager.CreateTweenAndRun(defaultExpression, 0.1f);
+						Expressions.SetBaseExpression(defaultExpression);
 						break;
 				}
 			}
@@ -78,7 +78,7 @@ namespace ShyGalModelReplacement
 		protected override void Awake()
 		{
 			base.Awake();
-			tweenManager = new Tweener(replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
+			Expressions = new Expressions(defaultExpression, replacementModel.GetComponentInChildren<SkinnedMeshRenderer>());
 		}
 
 		public override void LateUpdate()
@@ -108,7 +108,8 @@ namespace ShyGalModelReplacement
 			{
 				OnEmote(danceID);
 			}
-			tweenManager.LateUpdate();
+
+			Expressions.Update();
 		}
 
 		private int getEmoteIDWithTME(int emoteID)
@@ -129,21 +130,21 @@ namespace ShyGalModelReplacement
 		protected override void OnDamageTakenByAlly(PlayerControllerB ally, bool dead) { return; }
 		protected override void OnEmoteStart(int emoteId) { return; }
 		protected override void OnEmoteEnd() { return; }
+
 	}
 
 	// RED SHY GAL
-	public class MRSHYGALRED : MRSHYGALBASE
+	public class SHYGALRED : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
 			model_name = "Shygal Red";
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
-
 	}
 
 	// BLUE SHY GAL
-	public class MRSHYGALBLUE : MRSHYGALBASE
+	public class SHYGALBLUE : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -155,7 +156,7 @@ namespace ShyGalModelReplacement
 	}
 
 	// BLACK SHY GAL
-	public class MRSHYGALBLACK : MRSHYGALBASE
+	public class SHYGALBLACK : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -170,7 +171,7 @@ namespace ShyGalModelReplacement
 	}
 
 	// GREEN SHY GAL
-	public class MRSHYGALGREEN : MRSHYGALBASE
+	public class SHYGALGREEN : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -184,7 +185,7 @@ namespace ShyGalModelReplacement
 	}
 
 	// YELLOW SHY GAL
-	public class MRSHYGALYELLOW : MRSHYGALBASE
+	public class SHYGALYELLOW : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -195,20 +196,20 @@ namespace ShyGalModelReplacement
 	}
 
 	// WHITE SHY GAL
-	public class MRSHYGALWHITE : MRSHYGALBASE
+	public class SHYGALWHITE : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
 			model_name = "Shygal White";
 			defaultExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0);
-			happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 100, 0, 0, 0, 0);
+			happyExpression = new FaceExpression(0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 100, 0, 0, 0, 0);
 			deadExpression = new FaceExpression(0, 0, 0, 0, 20, 0, 0, 100, 65, 0, 0, 0, 0, 50, 0);
 			return Assets.MainAssetBundle.LoadAsset<GameObject>(model_name);
 		}
 	}
 
 	// PURPLE SHY GAL
-	public class MRSHYGALPURPLE : MRSHYGALBASE
+	public class SHYGALPURPLE : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -220,7 +221,7 @@ namespace ShyGalModelReplacement
 	}
 
 	// PINK SHY GAL
-	public class MRSHYGALPINK : MRSHYGALBASE
+	public class SHYGALPINK : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
@@ -237,13 +238,13 @@ namespace ShyGalModelReplacement
 			base.OnEmote(emoteId);
 			if (emoteId == -18) // blow kiss
 			{
-				tweenManager.CreateTweenAndRun(surprisedExpression, 0.1f);
+				Expressions.SetBaseExpression(surprisedExpression);
 			}
 		}
 	}
 
 	// ORANGE SHY GAL
-	public class MRSHYGALORANGE : MRSHYGALBASE
+	public class SHYGALORANGE : SHYGALBASE
 	{
 		protected override GameObject LoadAssetsAndReturnModel()
 		{
